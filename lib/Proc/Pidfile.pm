@@ -191,21 +191,20 @@ the curent process
 
 =head1 SYNOPSIS
 
-    my $pp = Proc::Pidfile->new( pidfile => "/path/to/your/pidfile" );
-    # if the pidfile already exists, die here
-    $pidfile = $pp->pidfile();
-    undef $pp;
-    # unlink $pidfile here
-
-    my $pp = Proc::Pidfile->new();
-    # creates pidfile in default location
-    my $pidfile = $pp->pidfile();
-    # tells you where this pidfile is ...
-
-    my $pp = Proc::Pidfile->new( silent => 1 );
-    # if the pidfile already exists, exit silently here
+    my $pp = Proc::Pidfile->new();   # create pidfile in default location, or
+                                     # die if another process already running.
+    my $pidfile = $pp->pidfile();    # find out where file is
     ...
-    undef $pp;
+    undef $pp;                       # unlink the pidfile
+
+    # specify where you want the pidfile:
+    my $pp = Proc::Pidfile->new( pidfile => "/path/to/your/pidfile" );
+
+    # exit instead of dying, when can't acquire pidfile:
+    my $pp = Proc::Pidfile->new(silent => 1);
+
+    # pause and retry 4 times to acquire pidfile, before failing:
+    my $pp = Proc::Pidfile->new(retries => 4);
 
 =head1 DESCRIPTION
 
