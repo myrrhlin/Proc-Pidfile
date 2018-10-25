@@ -210,8 +210,17 @@ the curent process
 =head1 DESCRIPTION
 
 Proc::Pidfile is a very simple OO interface which manages a pidfile for the
-current process.
-You can pass the path to a pidfile to use as an argument to the constructor,
+current process.  
+
+The constructor C<new> will create a pidfile if none exists, or re-use an 
+existing one if it is stale (the pid recorded is no longer running).
+The created object's pidfile will automatically be removed when this object 
+is destroyed.  
+If the pidfile exists and the recorded pid is still running, the constructor
+will pause briefly and retry twice (by default), and failing that, 
+then will die (default), or optionally exit.
+
+You can specify the path to a pidfile to use as an argument to the constructor,
 or you can let Proc::Pidfile choose one
 ("/$tmpdir/$basename", where C<$tmpdir> is from C<File::Spec>).
 
