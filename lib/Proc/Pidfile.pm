@@ -114,7 +114,7 @@ sub _create_pidfile
                 #       bother with increasing backoff times
                 my $backoff = 100 + rand(300);
                 $self->_verbose("backing off for $backoff microseconds before trying again");
-                usleep(100 + rand(300));
+                usleep($backoff);
                 next;
             }
 
