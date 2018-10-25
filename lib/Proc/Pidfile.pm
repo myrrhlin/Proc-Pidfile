@@ -229,17 +229,11 @@ against its own, and against its parents (in case it is a spawned child of the
 process that originally created the Proc::Pidfile object), and barfs if it
 doesn't match either.
 
-If you pass a "silent" parameter to the constructor, then it will still check
-for the existence of a pidfile, but will exit silently if one is found. This is
-useful for, for example, cron jobs, where you don't want to create a new
-process if one is already running, but you don't necessarily want to be
-informed of this by cron.
-
 =head2 Retries
 
 If another instance of your script is already running,
-we'll retry a couple of times,
-with a random number of microseconds between each attempt.
+we'll pause and retry a couple of times,
+with a random delay of 100-400 microseconds between attempts.
 
 You can specify the number of retries, for example if you
 want to try more times for some reason:
@@ -252,6 +246,14 @@ it will try 2 more times, so three attempts in total.
 
 Setting retries to 0 (zero) will disable this feature.
 
+=head2 Silent
+
+If you pass a C<silent> parameter to the constructor, then it will exit with 
+status 0 instead of dying, when another process is still running (after any retries).
+
+This is useful for e.g. cron jobs, where you don't want to create a new
+process if one is already running, but you don't necessarily want to be
+informed of this by cron.
 
 =head1 SEE ALSO
 
