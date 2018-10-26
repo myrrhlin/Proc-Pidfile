@@ -5,6 +5,9 @@ use 5.006;
 use strict;
 use warnings;
 use File::Spec::Functions qw/ tmpdir catfile /;
+use Time::HiRes qw<usleep time>;
+
+use Data::Dumper;
 
 # A quick google said that this is the default value for maxpid
 # and if we can't find a pid in the first 32k, I suspect we won't
@@ -14,7 +17,7 @@ my $MAXPID          = 32768;
 my $TMPDIR          = tmpdir();
 my $DEFAULT_PIDFILE = catfile($TMPDIR, "Proc-Pidfile-Test-$$.pid");
 
-use Test::More tests => 24;
+use Test::More tests => 33;
 
 BEGIN { require_ok( 'Proc::Pidfile' ); }
 my ( $err, $obj, $pidfile, $ppid, $pid );
@@ -133,6 +136,35 @@ SKIP: {
     like( $err, qr/already running: $pid/, "other users pid" );
     unlink( $pidfile );  # cleanup after ourselves
 }
+
+
+# test wait feature
+$pidfile = $DEFAULT_PIDFILE;
+unlink( $pidfile ) if -e $pidfile;
+$pid = fork;
+if ( $pid == 0 ) {   # child writes the pidfile
+    $obj = Proc::Pidfile->new(pidfile => $pidfile, retries => 0);
+    sleep(2);
+    exit(0);
+}
+ok( defined( $pid ), "fork successful, parent pid $$, child $pid" );
+my $now = time;
+my $pause = 200;
+usleep($pause);  # prevent race on the pidfile, want the child to get it
+eval { $obj = Proc::Pidfile->new(pidfile => $pidfile, wait => 0.5) };
+like($@, qr/already running: $pid/, "died, could not acquire pidfile" );
+cmp_ok( time-$now-($pause/1_000_000), '>', 0.5, '(constructor waited though, trying)');
+
+eval { $obj = Proc::Pidfile->new(pidfile => $pidfile, wait => 5) };
+ok(! $@, 'was able to acquire pidfile with longer wait');
+cmp_ok( time-$now, '>', 2, 'constructor waited to acquire pidfile') || print Dumper($obj);
+cmp_ok( time-$now, '<', 3, '... but didnt wait too long')           || print Dumper($obj);
+cmp_ok($obj->{_attempts}, '<', 50, '... and didnt try too many times') || print Dumper($obj);
+undef $obj;
+is( waitpid( $pid, 0 ), $pid, "reaped the child" );
+ok( $? >> 8 == 0, "child exited cleanly" );
+
+
 
 sub find_unused_pid
 {
