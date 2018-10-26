@@ -62,7 +62,7 @@ sub _get_pid
     my $self = shift;
     my $pidfile = $self->{pidfile};
     $self->_verbose( "get pid from $pidfile\n" );
-    open( PID, $pidfile ) or croak "can't read pid file $pidfile\n";
+    open( PID, '<', $pidfile ) or croak "can't read pid file $pidfile\n";
     flock( PID, LOCK_SH ) or croak "can't lock pid file $pidfile\n";
     my $pid = <PID>;
     if (defined($pid) && $pid =~ /([0-9]+)/) {
@@ -127,7 +127,7 @@ sub _create_pidfile
         }
         else {
             $self->_verbose( "$pid has died - replacing pidfile\n" );
-            open( PID, ">$pidfile" ) or croak "Can't write to $pidfile\n";
+            open( PID, '>', $pidfile ) or croak "Can't write to $pidfile\n";
             print PID "$$\n";
             close( PID );
             last;
@@ -136,7 +136,7 @@ sub _create_pidfile
 
     if (not -e $pidfile) {
         $self->_verbose( "no pidfile $pidfile\n" );
-        open( PID, ">$pidfile" ) or croak "Can't write to $pidfile: $!\n";
+        open( PID, '>', $pidfile ) or croak "Can't write to $pidfile: $!\n";
         flock( PID, LOCK_EX ) or croak "Can't lock pid file $pidfile\n";
         print PID "$$\n" or croak "Can't write to pid file $pidfile\n";
         flock( PID, LOCK_UN );
