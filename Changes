@@ -1,5 +1,10 @@
 Revision history for Perl module Proc::Pidfile
 
+1.10 2018-10-26 MYRRHLIN
+    - New wait feature
+    - Safer 3-arg opens
+    - Clearer docs
+
 1.09 2018-09-26 NEILB
     - Only one odd looking fail on CPAN Testers, so doing a non-developer
       release, as that will get more testing.
