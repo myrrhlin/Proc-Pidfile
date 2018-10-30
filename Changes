@@ -1,6 +1,6 @@
 Revision history for Perl module Proc::Pidfile
 
-1.10 2018-10-26 MYRRHLIN
+1.10 2018-10-26 PYRRHLIN
     - New wait feature
     - Safer 3-arg opens
     - Clearer docs
